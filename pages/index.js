@@ -1,6 +1,7 @@
 import MeetupList from '@/components/meetups/MeetupList';
 
 
+
 const DUMMY_MEETUPS = [
   {
     id: 'm1',
@@ -25,8 +26,19 @@ const DUMMY_MEETUPS = [
   },
 ];
 
-function HomePage() {
-  return <MeetupList meetups={DUMMY_MEETUPS} />;
+function HomePage(props) {
+  return <MeetupList meetups={props.meetups} />;
 }
+
+
+export async function getStaticProps() {
+  // Fetch data from an API or an external source
+  return {
+    props: {
+      meetups: DUMMY_MEETUPS,
+    },
+  };
+}
+
 
 export default HomePage;

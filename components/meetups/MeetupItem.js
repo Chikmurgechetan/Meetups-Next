@@ -6,9 +6,12 @@ function MeetupItem(props) {
 
   const router = useRouter();
 
-  function showMeetupDetails () {
-    router.push('/' + props.id);
+  function showMeetupDetails() {
+  console.log("props.id",props.id)
+  router.push('/' + props.id);
+    
   }
+  
 
 
   return (

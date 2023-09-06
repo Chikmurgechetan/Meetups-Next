@@ -1,56 +1,60 @@
+import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
-import { Fragment } from "react";
 
-function MeetupDetails() {
+
+function MeetupDetails(props) {
   return (
     <MeetupDetail
-      image="https://content.skyscnr.com/m/19c1f54952cdf28a/original/GettyImages-532519763.jpg?resize=800px:600px&quality=100"
-      title="First Meetup"
-      address="Agraga(Delhi)"
-      description="This is a first meetup"
+      image={props.meetupData.image}
+      title={props.meetupData.title}
+      address={props.meetupData.address}
+      description={props.meetupData.description}
     />
   );
 }
 export async function getStaticPaths() {
+  const client = await MongoClient.connect('mongodb+srv://charandata:iN1ceAN9gDwnJC49@cluster0.woi1pck.mongodb.net/meetups?retryWrites=true&w=majority');
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+ 
+  client.close();
+   
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupid: 'm1', // Define the dynamic parameter 'meetupid'
-        },
-      },
-      {
-        params: {
-          meetupid: 'm2', // Define another dynamic parameter 'meetupid'
-        },
-      },
-      {
-        params: {
-          meetupid: 'm3', // Define another dynamic parameter 'meetupid'
-        },
-      },
-    ],
+    paths: meetups.map((meetup) => ({
+      params: { meetupid: meetup._id.toString() },
+    })),
   };
 }
-
 
 export async function getStaticProps(context) {
   // fetch data for a sing meetup
   const meetupId = context.params.meetupid;
 
-  console.log(meetupId);
+  const client = await MongoClient.connect('mongodb+srv://charandata:iN1ceAN9gDwnJC49@cluster0.woi1pck.mongodb.net/meetups?retryWrites=true&w=majority');
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  const selectedMeetup = await meetupsCollection.findOne({ _id: new ObjectId(meetupId) });
+
+
+ 
+  client.close();
 
   return {
     props: {
       meetupData: {
-        image:
-          "https://content.skyscnr.com/m/19c1f54952cdf28a/original/GettyImages-532519763.jpg?resize=800px:600px&quality=100",
-        id: meetupId,
-        title: "First Meetup",
-        address: "Agraga(Delhi)",
-        description: "This is a first meetup",
-      },
+        id: selectedMeetup._id.toString(),
+        title: selectedMeetup.title,
+        address: selectedMeetup.address,
+        image: selectedMeetup.image,
+        description: selectedMeetup.description
+      }
+
     },
   };
 }
